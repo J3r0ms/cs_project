@@ -32,7 +32,7 @@ int main(int argc, char const* argv[])
 	// integer to hold client socket. 
 	int clientSocket = accept(servSockD, NULL, NULL); 
 
-	// send's messages to client socket 
+	// sends messages to client socket 
 	send(clientSocket, serMsg, sizeof(serMsg), 0); 
 
 	return 0; 
