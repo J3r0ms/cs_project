@@ -1,0 +1,37 @@
+{
+    "users": [
+      {
+        "id": "user1",
+        "password": "password1",
+        "action":{
+            " delay " : " DELAY IN SECONDS ",
+            " steps " : [
+                "ACTION 1",
+                "ACTION 2"
+            ]
+        }
+      },
+      {
+        "id": "user2",
+        "password": "password2",
+        "action":{
+            " delay " : " DELAY IN SECONDS ",
+            " steps " : [
+                "ACTION 1",
+                "ACTION 2"
+            ]
+        }
+      },
+      {
+        "id": "user3",
+        "password": "password3",
+        "action":{
+            " delay " : " DELAY IN SECONDS ",
+            " steps " : [
+                "ACTION 1",
+                "ACTION 2"
+            ]
+        }
+      }
+    ]
+  }
