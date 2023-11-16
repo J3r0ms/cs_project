@@ -3,6 +3,8 @@
 #include <stdlib.h> 
 #include <sys/socket.h> //for socket APIs 
 #include <sys/types.h> 
+#include <ctype.h>
+#include <string.h>
 
 int main(int argc, char const* argv[]) 
 { 
@@ -12,8 +14,7 @@ int main(int argc, char const* argv[])
 	int servSockD = socket(AF_INET, SOCK_STREAM, 0); 
 
 	// string store data to send to client 
-	char serMsg[255] = "Message from the server to the "
-					"client \'Hello Client\' "; 
+	char serMsg[255] = "Successfully connected to server.";
 
 	// define server address 
 	struct sockaddr_in servAddr; 
