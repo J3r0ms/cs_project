@@ -4,6 +4,29 @@
 #include <sys/socket.h> //for socket APIs 
 #include <sys/types.h> //for data types
 
+void retrieve_and_send_ID(int sockD)
+{
+		int myID;
+		// Ask the user to type an id
+		printf("Enter your user id or create a new one: \n");
+		// Get and save the number the user types
+		scanf("%d", &myID);
+		// Send the id to the server
+		send(sockD, &myID, sizeof(myID), 0);
+}
+
+void retrieve_and_send_password(int sockD)
+{
+		char myPassword[255];
+		// Ask the user to type an id
+		printf("Enter your password: \n");
+		// Get and save the number the user types
+		scanf("%255s", myPassword);
+		// Send the id to the server
+		send(sockD, myPassword, sizeof(myPassword), 0);
+}
+
+
 int main(int argc, char const* argv[]) 
 { 
 	int sockD = socket(AF_INET, SOCK_STREAM, 0); // Internal client socket
@@ -32,8 +55,18 @@ int main(int argc, char const* argv[])
 		recv(sockD, strData, sizeof(strData), 0); 
 
 		printf("Message: %s\n", strData); 
+
+		// Retrieve ID from user and send it to the server
+		retrieve_and_send_ID(sockD);
+
+		// Retrieve Password from user and send it to the server
+		retrieve_and_send_password(sockD);
+		
+
+
 	} 
 
 	return 0; 
 }
+
 
