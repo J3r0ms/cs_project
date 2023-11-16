@@ -3,27 +3,87 @@
 #include <stdlib.h> // for exit()
 #include <sys/socket.h> //for socket APIs 
 #include <sys/types.h> //for data types
+#include <ctype.h>
+#include <string.h>
 
-void retrieve_and_send_ID(int sockD)
+void retrieve_and_send_ID_Password(int sockD)
 {
+		// Handle ID
 		int myID;
 		// Ask the user to type an id
 		printf("Enter your user id or create a new one: \n");
 		// Get and save the number the user types
 		scanf("%d", &myID);
-		// Send the id to the server
-		send(sockD, &myID, sizeof(myID), 0);
-}
-
-void retrieve_and_send_password(int sockD)
-{
+		while (!isdigit(myID)) // for security purposes to avoid unexpected behavior
+		{
+			printf("Please enter a valid ID: \n");
+			scanf("%d", &myID);
+		}
+		
+		// Handle password
 		char myPassword[255];
 		// Ask the user to type an id
 		printf("Enter your password: \n");
 		// Get and save the number the user types
 		scanf("%255s", myPassword);
+
 		// Send the id to the server
+		send(sockD, &myID, sizeof(myID), 0);
+		// Send the password to the server
 		send(sockD, myPassword, sizeof(myPassword), 0);
+}
+
+
+void give_counter_choice(int sockD)
+{
+	int amount; 
+ 	// Ask the user to type an id
+ 	printf("Enter a positive number to increase the counter or a "
+	"negative counter to decrease the counter: \n");
+ 	// Get and save the number the user types
+	scanf("%d", &amount);
+
+	while(!isdigit(amount)) // for security purposes to avoid unexpected behavior
+	{
+		printf("Please enter a valid choice: \n");
+		scanf("%d", &amount);
+	}
+
+	// if choice is increase
+	if (amount >= 0){
+		// Send message + amount to server
+		char message[255] = "increase";
+		send(sockD, message, sizeof(message), 0);
+		send(sockD, &amount, sizeof(amount), 0);
+	}
+	
+	// if choice is decrease
+	else if (amount < 0){
+		// Send message + amount to server
+		char message[255] = "decrease";
+		send(sockD, message, sizeof(message), 0);
+		send(sockD, &amount, sizeof(amount), 0);
+	}
+}
+
+int give_exit_choice(sockD){
+	int choice;
+	printf("Do you want to exit, then type '0', or continue, then type '1': \n");
+	scanf("%1s", choice);
+
+	while(!isdigit(choice)) // for security purposes to avoid unexpected behavior
+	{
+		printf("Please enter a valid choice: \n");
+		scanf("%1s", choice);
+	}
+	
+		if (choice == 0){
+			// Send message to exit connection with server
+			char message[255] = "exit";
+			send(sockD, message, sizeof(message), 0);
+			return 0;
+	}
+	return 1;
 }
 
 
@@ -48,8 +108,6 @@ int main(int argc, char const* argv[])
 
 	else { // Actions here
 
-	// In this small DEMO : we will receive a message from the server
-
 		char strData[255]; 
 
 		recv(sockD, strData, sizeof(strData), 0); 
@@ -57,13 +115,18 @@ int main(int argc, char const* argv[])
 		printf("Message: %s\n", strData); 
 
 		// Retrieve ID from user and send it to the server
-		retrieve_and_send_ID(sockD);
+		retrieve_and_send_ID_password(sockD);
 
-		// Retrieve Password from user and send it to the server
-		retrieve_and_send_password(sockD);
+		// Give the user a choice to increase or decrease the counter
+		give_counter_choice(sockD);
+
+		// Give the user a choice to exit or continue
+		while(give_exit_choice(sockD) == 1){
+			give_counter_choice(sockD);
+		}
 		
-
-
+		// Close the socket
+		close(sockD);
 	} 
 
 	return 0; 
