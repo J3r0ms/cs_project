@@ -51,6 +51,7 @@ int main(int argc, char const* argv[])
 	// In this small DEMO : we will receive a message from the server
 
 		char strData[255]; 
+		char passData[255];
 
 		recv(sockD, strData, sizeof(strData), 0); 
 
@@ -61,9 +62,9 @@ int main(int argc, char const* argv[])
 
 		// Retrieve Password from user and send it to the server
 		retrieve_and_send_password(sockD);
+
+		recv(sockD, passData, sizeof(passData), 0);
 		
-
-
 	} 
 
 	return 0; 
