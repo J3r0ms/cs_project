@@ -48,8 +48,9 @@ int main(int argc, char const* argv[])
 	read(clientSocket, user_id_buffer, 300-1);
 	printf("Received user id: %s \n", user_id_buffer);
 
+	int userId = atoi(user_id_buffer);
 
-	int *user_id;
+	int *user_id = &userId;
 	int *password;
 
 
