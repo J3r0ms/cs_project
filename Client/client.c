@@ -37,33 +37,14 @@ void send_Password(int sockD)
 void give_counter_choice(int sockD)
 {
 	int amount;
- 	// Ask the user to type an id
+
  	printf("Enter a positive number to increase the counter or a "
 	"negative counter to decrease the counter: \n");
- 	// Get and save the number the user types
+
 	scanf("%d", &amount);
 
-	while(!isdigit(amount)) // for security purposes to avoid unexpected behavior
-	{
-		printf("Please enter a valid choice: \n");
-		scanf("%d", &amount);
-	}
+	send(sockD, &amount, sizeof(amount), 0);
 
-	// if choice is increase
-	if (amount >= 0){
-		// Send message + amount to server
-		char message[255] = "increase";
-		send(sockD, message, sizeof(message), 0);
-		send(sockD, &amount, sizeof(amount), 0);
-	}
-
-	// if choice is decrease
-	else if (amount < 0){
-		// Send message + amount to server
-		char message[255] = "decrease";
-		send(sockD, message, sizeof(message), 0);
-		send(sockD, &amount, sizeof(amount), 0);
-	}
 }
 
 int give_exit_choice(int sockD){
