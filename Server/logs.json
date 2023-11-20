@@ -1,0 +1,48 @@
+[
+	{
+		"id": "ID1",
+		"password": "this is pass 1",
+		"server": {
+			"ip": "SERVER_IP",
+			"port": "PORT"
+		},
+		"actions": {
+			"delay": "DELAY IN SECONDS",
+			"steps": [
+				"ACTION 1",
+				"ACTION 2"
+			]
+		}
+		
+	},
+	{
+		"id": "ID2",
+		"password": "this is pass 2",
+		"server": {
+			"ip": "SERVER_IP",
+			"port": "PORT"
+		},
+		"actions": {
+			"delay": "DELAY IN SECONDS",
+			"steps": [
+				"ACTION 1",
+				"ACTION 2"
+			]
+		}
+	},
+	{
+		"id": "ID3",
+		"password": "this is pass 3",
+		"server": {
+			"ip": "SERVER_IP",
+			"port": "PORT"
+		},
+		"actions": {
+			"delay": "DELAY IN SECONDS",
+			"steps": [
+				"ACTION 1",
+				"ACTION 2"
+			]
+		}
+	}
+]
