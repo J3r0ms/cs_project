@@ -5,6 +5,8 @@
 #include <sys/types.h> 
 #include <ctype.h>
 #include <string.h>
+#include <fcntl.h> // for open
+#include <unistd.h> // for close
 
 
 int main(int argc, char const* argv[]) 
@@ -30,10 +32,14 @@ int main(int argc, char const* argv[])
 	// sends messages to client socket 
 	send(clientSocket, serMsg, sizeof(serMsg), 0);
 
-	char buffer[1024] ={0};
-	read(clientSocket, buffer, 1024-1);
-
+	char buffer[300];
+	read(clientSocket, buffer, 300-1);
 	printf("Received user id: %s \n", buffer);
+
+	char buffer2[300];
+	read(clientSocket, buffer2, 300-1);
+	printf("Received user password: %s \n", buffer2);
+
 
 
 	return 0; 

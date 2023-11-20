@@ -9,24 +9,28 @@
 #include <unistd.h> // for close
 
 
-void retrieve_and_send_ID_Password(int sockD)
+void retrieve_ID(int sockD)
 {
 		int userID;
-		char userPassword[100] ={0};
 
-		printf("Enter your user id or create a new one: \n");
-		scanf("%i", myID);
+		printf("Enter user id: \n");
+		scanf("%100i", &userID);
 
-		printf("Enter your password: \n");
-		scanf("%100s", userPassword);
+		char userInfo[100];
 
-		char userInfo[201];
+		sprintf(userInfo, "%i", userID);
 
-		sprinf(userInfo, "%d", userID);
-		printf("%s", userInfo);
+		send(sockD, userInfo, sizeof(userInfo), 0);
+}
 
+void retrieve_Password(int sockD)
+{
+		char userPass[200];
+		printf("Enter user password: \n");
+		scanf("%200s", userPass);
 
-		// send(sockD, , 0);
+		send(sockD, userPass, sizeof(userPass), 0);
+		printf("Message sent \n");
 }
 
 
@@ -106,14 +110,13 @@ int main(int argc, char const* argv[])
 		char strData[255]; 
 
 		recv(sockD, strData, sizeof(strData), 0); 
-
 		printf("%s\n", strData);
 
-		// Retrieve ID from user and send it to the server
-		retrieve_and_send_ID_Password(sockD);
+		retrieve_ID(sockD);
 
-		// Give the user a choice to increase or decrease the counter
-		give_counter_choice(sockD);
+		retrieve_Password(sockD);
+
+		// give_counter_choice(sockD);
 
 		// Give the user a choice to exit or continue
 		while(give_exit_choice(sockD) == 1){
