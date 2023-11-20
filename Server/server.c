@@ -5,8 +5,17 @@
 #include <sys/types.h> 
 #include <ctype.h>
 #include <string.h>
+
+#include "cJSON.h"
+
+
+int login(int servSockD){
+	return 0;
+}
+
+
 int main(int argc, char const* argv[]) 
-{ 
+{ 	
 	// create server socket similar to what was done in 
 	// client program 
 	int servSockD = socket(AF_INET, SOCK_STREAM, 0); 
@@ -22,9 +31,68 @@ int main(int argc, char const* argv[])
 		sizeof(servAddr)); 
 	// listen for connections 
 	listen(servSockD, 1); 
+
 	// integer to hold client socket. 
-	int clientSocket = accept(servSockD, NULL, NULL); 
+	int clientSocket = accept(servSockD, NULL, NULL);
+	printf("%d", clientSocket);
 	// sends messages to client socket 
 	send(clientSocket, serMsg, sizeof(serMsg), 0); 
+	
+	char buffer[1024] = {0};
+	read(clientSocket, buffer, 1024-1);
+
+	int *user_id;
+	int *password;
+
+
+    FILE* fp = fopen("logs.json", "r");
+
+	// Error Handling
+	if (fp == NULL) { 
+        printf("Error: Unable to open the json log file.\n"); 
+        return 1; 
+    } 
+
+	// reading the full json string from the file fp
+    char file_buf[1024] = {0};
+    fread(file_buf, 1, sizeof(file_buf), fp);
+	fclose(fp);
+
+	// parsing the json string into a cJSON struct
+	cJSON *rootArray = cJSON_Parse(file_buf);
+	
+	// Error Handling
+	if (rootArray == NULL) { 
+        const char *error_ptr = cJSON_GetErrorPtr(); 
+        if (error_ptr != NULL) { 
+            printf("Error: %s\n", error_ptr); 
+        } 
+        cJSON_Delete(rootArray); 
+        return 1; 
+    } 
+
+	// looping through all logs to find an existing id.
+	// If the sent id is found, sends a OK to client
+	for(int i = 0; i < cJSON_GetArraySize(rootArray); i++){
+		// Get current json object in the logs array 
+		cJSON *currentLog = cJSON_GetArrayItem(rootArray, i);
+
+		cJSON *currentId = cJSON_GetObjectItem(currentLog, "id");
+		cJSON *currentPassword = cJSON_GetObjectItem(currentLog, "password");
+
+		if (*user_id == (int) cJSON_GetNumberValue(currentId)){
+			
+			break;
+		}
+
+		
+		printf("%s \n", cJSON_GetStringValue(currentId));
+		printf("%s \n", cJSON_GetStringValue(currentPassword));
+		printf("\n");
+	}
+
+	//login(clientSocket);
+
+
 	return 0; 
 }
