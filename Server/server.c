@@ -274,8 +274,23 @@ int main(int argc, char const* argv[])
 	
 	printf("login successful \n");
 
+	int *amounts_array = (int*)malloc(sizeof(int));
+
 	int amount = receive_amount(clientSocket);
+	amounts_array[0] = amount;
 	printf("Received amount: %i \n", amount);
+
+	int index = 0;
+	while(amount != 0){
+		int *amounts_array = realloc(amounts_array, index + 1);
+		index++;
+
+		int amount = receive_amount(clientSocket);
+		amounts_array[index] = amount;
+		printf("Received amount: %i \n", amount);
+	}
+
+	
 
 	// int delay = get_delay();
 	// send(clientSocket, &delay, sizeof(delay), 0);
