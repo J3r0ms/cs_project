@@ -30,7 +30,6 @@ void retrieve_Password(int sockD)
 		scanf("%200s", userPass);
 
 		send(sockD, userPass, sizeof(userPass), 0);
-		printf("Message sent \n");
 }
 
 
