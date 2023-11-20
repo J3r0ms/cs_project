@@ -5,6 +5,9 @@
 #include <sys/types.h> //for data types
 #include <ctype.h>
 #include <string.h>
+#include <fcntl.h> // for open
+#include <unistd.h> // for close
+
 
 void retrieve_and_send_ID_Password(int sockD)
 {
@@ -66,7 +69,7 @@ void give_counter_choice(int sockD)
 	}
 }
 
-int give_exit_choice(sockD){
+int give_exit_choice(int sockD){
 	int choice;
 	printf("Do you want to exit, then type '0', or continue, then type '1': \n");
 	scanf("%1s", choice);
@@ -105,7 +108,6 @@ int main(int argc, char const* argv[])
 	if (connectStatus == -1) { // Error handling
 		printf("Error...\n"); 
 	} 
-
 	else { // Actions here
 
 		char strData[255]; 
@@ -115,7 +117,7 @@ int main(int argc, char const* argv[])
 		printf("Message: %s\n", strData); 
 
 		// Retrieve ID from user and send it to the server
-		retrieve_and_send_ID_password(sockD);
+		retrieve_and_send_ID_Password(sockD);
 
 		// Give the user a choice to increase or decrease the counter
 		give_counter_choice(sockD);
