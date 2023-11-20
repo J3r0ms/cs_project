@@ -95,7 +95,8 @@ int main(int argc, char const* argv[])
 
 		if (*user_id == (int) cJSON_GetNumberValue(currentId)){
 			found_id = true;
-			send(clientSocket, 0, sizeof(int), 0);
+			int msg = 0;
+			send(clientSocket, msg, sizeof(msg), 0);
 			break;
 		}
 
@@ -106,7 +107,8 @@ int main(int argc, char const* argv[])
 	}
 
 	if(found_id == false){
-		send(clientSocket, 1, sizeof(int), 0);
+		int msg = 1;
+		send(clientSocket, msg, sizeof(msg), 0);
 	}
 
 	//login(clientSocket);
