@@ -244,8 +244,8 @@ int main(int argc, char const* argv[])
 	int amount = receive_amount(clientSocket);
 	printf("Received amount: %i \n", amount);
 
-	int delay = get_delay();
-	send(clientSocket, &delay, sizeof(delay), 0);
+	// int delay = get_delay();
+	// send(clientSocket, &delay, sizeof(delay), 0);
 
 
 
