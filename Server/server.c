@@ -52,17 +52,6 @@ int receive_user_id(int clientSocket)
 	return userId;
 }
 
-/*
-void receive_user_Pass(int* clientSocket)
-{
-	char password_buffer[300];
-	read(*clientSocket, password_buffer, 300-1);
-	printf("Received user password: %s \n", password_buffer);
-
-	return password_buffer;
-
-}*/
-
 int verify_user_id(int user_id, int clientSocket)
 {
 	cJSON *rootArray = parseJson();
@@ -86,12 +75,6 @@ int verify_user_id(int user_id, int clientSocket)
 	}
 
 	if(found_id == false){
-		// If the id was not found: create a new one
-
-		// -- TODO --
-		//create_user(clientSocket);
-		// ----------
-
 		int msg = 1;
 		send(clientSocket, &msg, sizeof(msg), 0);
 		printf("Message was sent: id not found, asking for a new password \n");
@@ -118,6 +101,13 @@ int receive_password(int clientSocket, char **pass){
 	strcpy(*pass, password_buffer);
 
 	return 0;
+}
+
+int receive_amount(int clientSocket)
+{
+	char amount_buffer[300];
+	read(clientSocket, amount_buffer, 300-1);
+	return atoi(amount_buffer);
 }
 
 int verify_password(int user_id, char* user_password, int clientSocket){
@@ -240,6 +230,9 @@ int main(int argc, char const* argv[])
 	printf("pass: %s \n", password);
 	
 	printf("login successful \n");
+
+	int amount = receive_amount(clientSocket);
+	printf("Received amount: %i \n", amount);
 
 	// int error_pass = verify_user_id(receive_user_pass(&clientSocket));
 	// if (error_pass == 1)

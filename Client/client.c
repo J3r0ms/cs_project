@@ -33,14 +33,16 @@ void send_Password(int sockD)
 		printf("Message sent \n");
 }
 
-
 void give_counter_choice(int sockD)
 {
 	int amount;
  	printf("Enter an amount to increase or decrease the counter: \n");
-	scanf("%d", &amount);
-	send(sockD, &amount, sizeof(amount), 0);
+	scanf("%100i", &amount);
 
+	char user_amount[100];
+	sprintf(user_amount, "%i", amount);
+
+	send(sockD, user_amount, sizeof(amount), 0);
 }
 
 int give_exit_choice(int sockD){
@@ -120,12 +122,6 @@ int main(int argc, char const* argv[])
 
 		give_counter_choice(sockD);
 
-		// Give the user a choice to exit or continue
-		while(give_exit_choice(sockD) == 1){
-			give_counter_choice(sockD);
-		}
-
-		// Close the socket
 		close(sockD);
 	}
 
