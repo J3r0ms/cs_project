@@ -2,12 +2,8 @@
 	{
 		"id": "123",
 		"password": "pass1",
-		"server": {
-			"ip": "SERVER_IP",
-			"port": "PORT"
-		},
 		"actions": {
-			"delay": "DELAY IN SECONDS",
+			"delay": "2",
 			"steps": [
 				"ACTION 1",
 				"ACTION 2"
@@ -18,12 +14,8 @@
 	{
 		"id": "234",
 		"password": "pass2",
-		"server": {
-			"ip": "SERVER_IP",
-			"port": "PORT"
-		},
 		"actions": {
-			"delay": "DELAY IN SECONDS",
+			"delay": "1",
 			"steps": [
 				"ACTION 1",
 				"ACTION 2"
@@ -33,12 +25,8 @@
 	{
 		"id": "456",
 		"password": "pass3",
-		"server": {
-			"ip": "SERVER_IP",
-			"port": "PORT"
-		},
 		"actions": {
-			"delay": "DELAY IN SECONDS",
+			"delay": "3",
 			"steps": [
 				"ACTION 1",
 				"ACTION 2"
