@@ -9,7 +9,7 @@
 #include <unistd.h> // for close
 
 
-void retrieve_ID(int sockD)
+void send_ID(int sockD)
 {
 		int userID;
 
@@ -23,7 +23,7 @@ void retrieve_ID(int sockD)
 		send(sockD, userInfo, sizeof(userInfo), 0);
 }
 
-void retrieve_Password(int sockD)
+void send_Password(int sockD)
 {
 		char userPass[200];
 		printf("Enter user password: \n");
@@ -109,26 +109,37 @@ int main(int argc, char const* argv[])
 
 		char strData[255];
 
+		// Initial (dummy) message
 		recv(sockD, strData, sizeof(strData), 0);
 		printf("%s\n", strData);
 
-		retrieve_ID(sockD);
+		send_ID(sockD);
 
 		int server_id_answer;
 		recv(sockD, &server_id_answer, sizeof(server_id_answer), 0);
-		while (server_id_answer == 1) {
-			printf("There was an error with your id, please try again \n");
-			retrieve_ID(sockD);
-		}
-		
-		retrieve_Password(sockD);
 
-		int server_pass_answer;
-		recv(sockD, &server_pass_answer, sizeof(server_pass_answer), 0);
-		while (server_pass_answer == 1) {
-			printf("There was an error with your password, please try again \n");
-			retrieve_Password(sockD);
+		// if answer == 0 -> Id exists so login
+		// if answer == 1 ->  Id does not exist so create new password
+
+		if(server_id_answer == 0){
+			send_Password(sockD);
+			
+			int server_pass_answer;
+			recv(sockD, &server_pass_answer, sizeof(server_pass_answer), 0);
+			while (server_pass_answer == 1) {
+				printf("Wrong password, please try again \n");
+				send_Password(sockD);
+				recv(sockD, &server_pass_answer, sizeof(server_pass_answer), 0);
+			}
 		}
+		else if(server_id_answer == 1){
+			printf("This user is not yet known. A new account will be created. \n");
+			send_Password(sockD);
+
+		}
+
+		printf("login successful! \n");
+		// By now, login is successful
 
 		give_counter_choice(sockD);
 
