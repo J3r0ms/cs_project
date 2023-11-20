@@ -115,7 +115,7 @@ int main(int argc, char const* argv[])
 		retrieve_ID(sockD);
 
 		int server_id_answer;
-		recv(sockD, server_id_answer, sizeof(server_id_answer), 0);
+		recv(sockD, &server_id_answer, sizeof(server_id_answer), 0);
 		if (server_id_answer == 1) {
 			printf("There was an error with your id, please try again \n");
 			retrieve_ID(sockD);
@@ -123,7 +123,7 @@ int main(int argc, char const* argv[])
 		retrieve_Password(sockD);
 
 		int server_pass_answer;
-		recv(sockD, server_pass_answer, sizeof(server_pass_answer), 0);
+		recv(sockD, &server_pass_answer, sizeof(server_pass_answer), 0);
 		if (server_pass_answer == 1) {
 			printf("There was an error with your password, please try again \n");
 			retrieve_Password(sockD);

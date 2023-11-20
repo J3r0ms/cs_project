@@ -48,10 +48,6 @@ int main(int argc, char const* argv[])
 	read(clientSocket, user_id_buffer, 300-1);
 	printf("Received user id: %s \n", user_id_buffer);
 
-	char password_buffer[300];
-	read(clientSocket, password_buffer, 300-1);
-	printf("Received user password: %s \n", password_buffer);
-
 
 	int *user_id;
 	int *password;
@@ -96,7 +92,8 @@ int main(int argc, char const* argv[])
 		if (*user_id == (int) cJSON_GetNumberValue(currentId)){
 			found_id = true;
 			int msg = 0;
-			send(clientSocket, msg, sizeof(msg), 0);
+			send(clientSocket, &msg, sizeof(msg), 0);
+			printf("Message was sent: id ok \n");
 			break;
 		}
 
@@ -108,8 +105,14 @@ int main(int argc, char const* argv[])
 
 	if(found_id == false){
 		int msg = 1;
-		send(clientSocket, msg, sizeof(msg), 0);
+		send(clientSocket, &msg, sizeof(msg), 0);
+		printf("Message was sent: id error \n");
+
 	}
+
+	char password_buffer[300];
+	read(clientSocket, password_buffer, 300-1);
+	printf("Received user password: %s \n", password_buffer);
 
 	//login(clientSocket);
 
