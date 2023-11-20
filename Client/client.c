@@ -9,31 +9,28 @@
 #include <unistd.h> // for close
 
 
-void retrieve_and_send_ID_Password(int sockD)
+void retrieve_ID(int sockD)
 {
-		// Handle ID
-		int myID;
-		// Ask the user to type an id
-		printf("Enter your user id or create a new one: \n");
-		// Get and save the number the user types
-		scanf("%d", &myID);
-		while (!isdigit(myID)) // for security purposes to avoid unexpected behavior
-		{
-			printf("Please enter a valid ID: \n");
-			scanf("%d", &myID);
-		}
-		
-		// Handle password
-		char myPassword[255];
-		// Ask the user to type an id
-		printf("Enter your password: \n");
-		// Get and save the number the user types
-		scanf("%255s", myPassword);
+		int userID;
 
-		// Send the id to the server
-		send(sockD, &myID, sizeof(myID), 0);
-		// Send the password to the server
-		send(sockD, myPassword, sizeof(myPassword), 0);
+		printf("Enter user id: \n");
+		scanf("%100i", &userID);
+
+		char userInfo[100];
+
+		sprintf(userInfo, "%i", userID);
+
+		send(sockD, userInfo, sizeof(userInfo), 0);
+}
+
+void retrieve_Password(int sockD)
+{
+		char userPass[200];
+		printf("Enter user password: \n");
+		scanf("%200s", userPass);
+
+		send(sockD, userPass, sizeof(userPass), 0);
+		printf("Message sent \n");
 }
 
 
@@ -106,21 +103,20 @@ int main(int argc, char const* argv[])
 				sizeof(servAddr)); // Connect to server
 
 	if (connectStatus == -1) { // Error handling
-		printf("Error...\n"); 
+		printf("Connection error \n");
 	} 
 	else { // Actions here
 
 		char strData[255]; 
 
 		recv(sockD, strData, sizeof(strData), 0); 
+		printf("%s\n", strData);
 
-		printf("Message: %s\n", strData); 
+		retrieve_ID(sockD);
 
-		// Retrieve ID from user and send it to the server
-		retrieve_and_send_ID_Password(sockD);
+		retrieve_Password(sockD);
 
-		// Give the user a choice to increase or decrease the counter
-		give_counter_choice(sockD);
+		// give_counter_choice(sockD);
 
 		// Give the user a choice to exit or continue
 		while(give_exit_choice(sockD) == 1){

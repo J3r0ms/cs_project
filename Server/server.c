@@ -5,9 +5,12 @@
 #include <sys/types.h> 
 #include <ctype.h>
 #include <string.h>
+#include <fcntl.h> // for open
+#include <unistd.h> // for close
 
 #include "cJSON.h"
 
+typedef enum {false, true} bool;
 
 int login(int servSockD){
 	return 0;
@@ -29,6 +32,7 @@ int main(int argc, char const* argv[])
 	// bind socket to the specified IP and port 
 	bind(servSockD, (struct sockaddr*)&servAddr, 
 		sizeof(servAddr)); 
+
 	// listen for connections 
 	listen(servSockD, 1); 
 
@@ -36,10 +40,18 @@ int main(int argc, char const* argv[])
 	int clientSocket = accept(servSockD, NULL, NULL);
 	printf("%d", clientSocket);
 	// sends messages to client socket 
-	send(clientSocket, serMsg, sizeof(serMsg), 0); 
-	
-	char buffer[1024] = {0};
-	read(clientSocket, buffer, 1024-1);
+
+
+	send(clientSocket, serMsg, sizeof(serMsg), 0);
+
+	char user_id_buffer[300];
+	read(clientSocket, user_id_buffer, 300-1);
+	printf("Received user id: %s \n", user_id_buffer);
+
+	char password_buffer[300];
+	read(clientSocket, password_buffer, 300-1);
+	printf("Received user password: %s \n", password_buffer);
+
 
 	int *user_id;
 	int *password;
@@ -71,6 +83,7 @@ int main(int argc, char const* argv[])
         return 1; 
     } 
 
+	bool found_id = false;
 	// looping through all logs to find an existing id.
 	// If the sent id is found, sends a OK to client
 	for(int i = 0; i < cJSON_GetArraySize(rootArray); i++){
@@ -81,7 +94,8 @@ int main(int argc, char const* argv[])
 		cJSON *currentPassword = cJSON_GetObjectItem(currentLog, "password");
 
 		if (*user_id == (int) cJSON_GetNumberValue(currentId)){
-			
+			found_id = true;
+			send(clientSocket, 0, sizeof(int), 0);
 			break;
 		}
 
@@ -91,8 +105,11 @@ int main(int argc, char const* argv[])
 		printf("\n");
 	}
 
-	//login(clientSocket);
+	if(found_id == false){
+		send(clientSocket, 1, sizeof(int), 0);
+	}
 
+	//login(clientSocket);
 
 	return 0; 
 }
