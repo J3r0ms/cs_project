@@ -33,7 +33,7 @@ void send_Password(int sockD)
 		printf("Message sent \n");
 }
 
-void give_counter_choice(int sockD)
+int give_counter_choice(int sockD)
 {
 	int amount;
  	printf("Enter an amount to increase or decrease the counter: \n");
@@ -43,6 +43,13 @@ void give_counter_choice(int sockD)
 	sprintf(user_amount, "%i", amount);
 
 	send(sockD, user_amount, sizeof(amount), 0);
+
+	if (amount == 0) {
+		printf("Exiting... \n");
+		return 0;
+	}
+	else
+		return 1;
 }
 
 int give_exit_choice(int sockD){
@@ -120,12 +127,12 @@ int main(int argc, char const* argv[])
 		printf("login successful! \n");
 		// By now, login is successful
 
-		give_counter_choice(sockD);
-		// int delay;
-		// recv(sockD, &delay, sizeof(delay), 0);
-		// printf("Delay of %i seconds \n", delay);
-		sleep(3);
 
+		int counter;
+		do {
+			counter = give_counter_choice(sockD);
+			sleep(3);
+		} while (counter != 0);
 
 		close(sockD);
 	}
