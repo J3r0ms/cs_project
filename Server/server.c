@@ -5,6 +5,8 @@
 #include <sys/types.h> 
 #include <ctype.h>
 #include <string.h>
+
+
 int main(int argc, char const* argv[]) 
 { 
 	// create server socket similar to what was done in 
@@ -20,11 +22,19 @@ int main(int argc, char const* argv[])
 	// bind socket to the specified IP and port 
 	bind(servSockD, (struct sockaddr*)&servAddr, 
 		sizeof(servAddr)); 
+
 	// listen for connections 
 	listen(servSockD, 1); 
 	// integer to hold client socket. 
 	int clientSocket = accept(servSockD, NULL, NULL); 
 	// sends messages to client socket 
-	send(clientSocket, serMsg, sizeof(serMsg), 0); 
+	send(clientSocket, serMsg, sizeof(serMsg), 0);
+
+	char buffer[1024] ={0};
+	read(clientSocket, buffer, 1024-1);
+
+	printf("Received user id: %s \n", buffer);
+
+
 	return 0; 
 }

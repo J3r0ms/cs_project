@@ -11,29 +11,22 @@
 
 void retrieve_and_send_ID_Password(int sockD)
 {
-		// Handle ID
-		int myID;
-		// Ask the user to type an id
-		printf("Enter your user id or create a new one: \n");
-		// Get and save the number the user types
-		scanf("%d", &myID);
-		while (!isdigit(myID)) // for security purposes to avoid unexpected behavior
-		{
-			printf("Please enter a valid ID: \n");
-			scanf("%d", &myID);
-		}
-		
-		// Handle password
-		char myPassword[255];
-		// Ask the user to type an id
-		printf("Enter your password: \n");
-		// Get and save the number the user types
-		scanf("%255s", myPassword);
+		int userID;
+		char userPassword[100] ={0};
 
-		// Send the id to the server
-		send(sockD, &myID, sizeof(myID), 0);
-		// Send the password to the server
-		send(sockD, myPassword, sizeof(myPassword), 0);
+		printf("Enter your user id or create a new one: \n");
+		scanf("%i", myID);
+
+		printf("Enter your password: \n");
+		scanf("%100s", userPassword);
+
+		char userInfo[201];
+
+		sprinf(userInfo, "%d", userID);
+		printf("%s", userInfo);
+
+
+		// send(sockD, , 0);
 }
 
 
@@ -106,7 +99,7 @@ int main(int argc, char const* argv[])
 				sizeof(servAddr)); // Connect to server
 
 	if (connectStatus == -1) { // Error handling
-		printf("Error...\n"); 
+		printf("Connection error \n");
 	} 
 	else { // Actions here
 
@@ -114,7 +107,7 @@ int main(int argc, char const* argv[])
 
 		recv(sockD, strData, sizeof(strData), 0); 
 
-		printf("Message: %s\n", strData); 
+		printf("%s\n", strData);
 
 		// Retrieve ID from user and send it to the server
 		retrieve_and_send_ID_Password(sockD);
