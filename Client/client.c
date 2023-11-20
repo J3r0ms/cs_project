@@ -72,12 +72,12 @@ void give_counter_choice(int sockD)
 int give_exit_choice(int sockD){
 	int choice;
 	printf("Do you want to exit, then type '0', or continue, then type '1': \n");
-	scanf("%1s", choice);
+	scanf("%1i", choice);
 
 	while(!isdigit(choice)) // for security purposes to avoid unexpected behavior
 	{
 		printf("Please enter a valid choice: \n");
-		scanf("%1s", choice);
+		scanf("%1i", choice);
 	}
 	
 		if (choice == 0){
