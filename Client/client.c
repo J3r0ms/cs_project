@@ -121,6 +121,11 @@ int main(int argc, char const* argv[])
 		// By now, login is successful
 
 		give_counter_choice(sockD);
+		int delay;
+		recv(sockD, &delay, sizeof(delay), 0);
+		printf("Delay of %i seconds \n", delay);
+		sleep(delay);
+
 
 		close(sockD);
 	}

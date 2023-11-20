@@ -84,7 +84,8 @@ int verify_user_id(int user_id, int clientSocket)
 	return -1;
 }
 
-int receive_password(int clientSocket, char **pass){
+int receive_password(int clientSocket, char **pass)
+{
 
 	char password_buffer[300];
 	read(clientSocket, password_buffer, 300-1);
@@ -110,7 +111,16 @@ int receive_amount(int clientSocket)
 	return atoi(amount_buffer);
 }
 
-int verify_password(int user_id, char* user_password, int clientSocket){
+int get_delay()
+{
+	//---TODO---
+	// get the user delay from the json and return it;
+	int delay = 2;
+	return delay;
+}
+
+int verify_password(int user_id, char* user_password, int clientSocket)
+{
 
 	cJSON *rootArray = parseJson();
 
@@ -234,9 +244,9 @@ int main(int argc, char const* argv[])
 	int amount = receive_amount(clientSocket);
 	printf("Received amount: %i \n", amount);
 
-	// int error_pass = verify_user_id(receive_user_pass(&clientSocket));
-	// if (error_pass == 1)
-	// 	int err*or_pass = verify_user_id(receive_user_pass(&clientSocket));
+	int delay = get_delay();
+	send(clientSocket, &delay, sizeof(delay), 0);
+
 
 
 
