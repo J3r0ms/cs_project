@@ -111,14 +111,6 @@ int receive_amount(int clientSocket)
 	return atoi(amount_buffer);
 }
 
-int get_delay()
-{
-	//---TODO---
-	// get the user delay from the json and return it;
-	int delay = 2;
-	return delay;
-}
-
 int verify_password(int user_id, char* user_password, int clientSocket)
 {
 
