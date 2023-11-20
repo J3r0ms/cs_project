@@ -42,6 +42,47 @@ cJSON* parseJson(){
 	return rootArray;
 }
 
+cJSON* generate_log_object(int id, char *pass, int delay, char **actions)
+{
+	cJSON *object = cJSON_CreateObject();
+	cJSON_AddNumberToObject(object, "id", id);
+	cJSON_AddStringToObject(object, "password", *pass);
+
+	cJSON *actions_object = cJSON_CreateObject();
+	cJSON_AddStringToObject(object, "delay", delay);
+
+	cJSON *steps_array = cJSON_CreateArray();
+
+	// TODO don't forget to add NULL element at the end of the array
+	while (*actions) {
+		printf("%s\n", *actions);
+		cJSON_AddItemToArray(steps_array, *actions);
+		actions += 1;
+	}
+
+	cJSON_AddArrayToObject(object, steps_array);
+
+   return object;
+}
+
+void write_to_json(cJSON * object)
+{
+	cJSON *rootArray = parseJson();
+
+	rootArray = cJSON_AddItemToArray(rootArray, object);
+
+	FILE *fp = fopen("logs.json", "w");
+
+	if (fp == NULL) { 
+		printf("Error: Unable to open the file.\n"); 
+		return 1; 
+	}
+
+	printf("%s\n", rootArray);
+	fputs(rootArray, fp);
+	fclose(fp);
+}
+
 int receive_user_id(int clientSocket)
 {
 	char user_id_buffer[300];
