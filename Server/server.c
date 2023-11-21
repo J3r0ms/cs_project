@@ -1,3 +1,7 @@
+/*
+THIS VERSION OF THE CODE DOES NOT ALLOW FOR SIMULTANEOUS CONNECTIONS
+*/
+
 #include <netinet/in.h> //structure for storing address information 
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -46,41 +50,47 @@ cJSON* generate_log_object(int id, char *pass, int delay, char **actions)
 {
 	cJSON *object = cJSON_CreateObject();
 	cJSON_AddNumberToObject(object, "id", id);
-	cJSON_AddStringToObject(object, "password", *pass);
+	cJSON_AddStringToObject(object, "password", pass);
 
 	cJSON *actions_object = cJSON_CreateObject();
-	cJSON_AddStringToObject(object, "delay", delay);
+	cJSON_AddNumberToObject(actions_object, "delay", delay);
 
 	cJSON *steps_array = cJSON_CreateArray();
 
 	// TODO don't forget to add NULL element at the end of the array
 	while (*actions) {
 		printf("%s\n", *actions);
-		cJSON_AddItemToArray(steps_array, *actions);
+		cJSON_AddItemToArray(steps_array, cJSON_CreateString(*actions));
 		actions += 1;
 	}
 
-	cJSON_AddArrayToObject(object, steps_array);
+	cJSON_AddItemToObject(actions_object, "steps", steps_array);
+
+	cJSON_AddItemToObject(object, "actions", actions_object);
 
    return object;
 }
 
-void write_to_json(cJSON * object)
+int write_to_json(cJSON * object)
 {
 	cJSON *rootArray = parseJson();
 
-	rootArray = cJSON_AddItemToArray(rootArray, object);
+	cJSON_AddItemToArray(rootArray, object);
+
+   	char *rootArray_str = cJSON_Print(rootArray); 
 
 	FILE *fp = fopen("logs.json", "w");
 
 	if (fp == NULL) { 
-		printf("Error: Unable to open the file.\n"); 
+		perror("Error: Unable to open the file.\n"); 
 		return 1; 
 	}
 
-	printf("%s\n", rootArray);
-	fputs(rootArray, fp);
+	printf("%s\n", rootArray_str);
+	fputs(rootArray_str, fp);
 	fclose(fp);
+
+	return 0;
 }
 
 int receive_user_id(int clientSocket)
@@ -235,6 +245,76 @@ int login_user(int clientSocket, int *id, char** pass){
 	return 0;
 }
 
+char** createActionsArray(int* amountsArray, int index) {
+    char** actionsArray = (char**)malloc(index * sizeof(char*));
+
+    if (actionsArray == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < index; i++) {
+        // Allocate memory for the action string
+        actionsArray[i] = (char*)malloc(30);  // Adjust the size based on your expected string length
+
+        if (actionsArray[i] == NULL) {
+            fprintf(stderr, "Memory allocation failed.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        // Construct the action string based on the corresponding amount
+        if (amountsArray[i] > 0) {
+            snprintf(actionsArray[i], 30, "INCREASE BY %d", amountsArray[i]);
+        } else if (amountsArray[i] < 0) {
+            snprintf(actionsArray[i], 30, "DECREASE BY %d", -amountsArray[i]);
+        } else {
+            actionsArray[i] = NULL;
+        }
+    }
+
+    return actionsArray;
+}
+
+int* receive_all_amounts(int clientSocket, int *amountArraySize) {
+    int* amountsArray = (int*)malloc(sizeof(int));  // Allocate memory for the first element
+
+    if (amountsArray == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    int index = 0;
+    int amount;
+
+    do {
+        // Receive an amount from the client
+        amount = receive_amount(clientSocket);
+
+        // Reallocate the array to accommodate the new amount
+        amountsArray = (int*)realloc(amountsArray, (index + 1) * sizeof(int));
+
+        if (amountsArray == NULL) {
+            fprintf(stderr, "Memory reallocation failed.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        // Store the received amount in the array
+        amountsArray[index] = amount;
+
+        // Print the received amount
+        printf("Received amount: %i \n", amount);
+
+        // Increment the index for the next iteration
+        index++;
+    } while (amount != 0);
+
+	*amountArraySize = index;
+
+    return amountsArray;
+}
+
+
+
 
 int main(int argc, char const* argv[]) 
 { 	
@@ -274,28 +354,19 @@ int main(int argc, char const* argv[])
 	
 	printf("login successful \n");
 
-	int *amounts_array = (int*)malloc(sizeof(int));
+	int amounts_array_length;
+	int* amounts_array = receive_all_amounts(clientSocket, &amounts_array_length);
 
-	int amount = receive_amount(clientSocket);
-	amounts_array[0] = amount;
-	printf("Received amount: %i \n", amount);
-
-	int index = 0;
-	while(amount != 0){
-		int *amounts_array = realloc(amounts_array, index + 1);
-		index++;
-
-		int amount = receive_amount(clientSocket);
-		amounts_array[index] = amount;
-		printf("Received amount: %i \n", amount);
-	}
-
-	
+	char** actions_array = createActionsArray(amounts_array, amounts_array_length);
 
 	// int delay = get_delay();
 	// send(clientSocket, &delay, sizeof(delay), 0);
 
+	write_to_json(generate_log_object(user_id, password, 3, actions_array));
 
+	free(password);
+	free(amounts_array);
+	free(actions_array);
 
 
 	// receive_user_Pass
