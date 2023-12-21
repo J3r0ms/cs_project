@@ -1,1 +1,8 @@
-[]
+[{
+		"id":	12,
+		"password":	"pass1",
+		"actions":	{
+			"delay":	3,
+			"steps":	["INCREASE BY 56", "DECREASE BY 78", "INCREASE BY 70"]
+		}
+	}]

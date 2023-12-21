@@ -93,11 +93,32 @@ int write_to_json(cJSON * object)
 	return 0;
 }
 
+/**
+ * This function is called whenever the current user disconnects.
+ * Make sure to check for disconnection at every read()
+*/
+int handle_disconnection(int clientSocket){
+
+	//write_to_json(/* json data */);
+	close(clientSocket);
+	return 0;
+}
+
 int receive_user_id(int clientSocket)
 {
+	printf("entering receive\n");
 	char user_id_buffer[300];
-	read(clientSocket, user_id_buffer, 300-1);
+	int bytes_read = read(clientSocket, user_id_buffer, 300-1);
+	printf("receiving id: %s\n", user_id_buffer);
+	printf("bytes read: %d\n", bytes_read);
+
+	if (bytes_read <= 0) {
+		handle_disconnection(clientSocket);
+		return -1;
+	} 
+
 	printf("Received user id: %s \n", user_id_buffer);
+	
 	int userId = atoi(user_id_buffer);
 
 	return userId;
@@ -110,6 +131,7 @@ int verify_user_id(int user_id, int clientSocket)
 	bool found_id = false;
 	// looping through all logs to find an existing id.
 	// If the sent id is found, sends a OK to client
+	int error_code;
 	for(int i = 0; i < cJSON_GetArraySize(rootArray); i++){
 		// Get current json object in the logs array
 		cJSON *currentLog = cJSON_GetArrayItem(rootArray, i);
@@ -119,7 +141,12 @@ int verify_user_id(int user_id, int clientSocket)
 		if (user_id == atoi(cJSON_GetStringValue(currentId))){
             found_id = true;
             int msg = 0;
-            send(clientSocket, &msg, sizeof(msg), 0);
+            error_code = send(clientSocket, &msg, sizeof(msg), 0);
+			if (error_code == -1) {
+				handle_disconnection(clientSocket);
+				return -1;
+			} 
+
             printf("Message was sent: id ok \n");
 			return 0;
         }
@@ -127,7 +154,11 @@ int verify_user_id(int user_id, int clientSocket)
 
 	if(found_id == false){
 		int msg = 1;
-		send(clientSocket, &msg, sizeof(msg), 0);
+		error_code = send(clientSocket, &msg, sizeof(msg), 0);
+		if (error_code == -1) {
+			handle_disconnection(clientSocket);
+			return -1;
+		} 
 		printf("Message was sent: id not found, asking for a new password \n");
 		return 1;
 	}
@@ -139,7 +170,12 @@ int receive_password(int clientSocket, char **pass)
 {
 
 	char password_buffer[300];
-	read(clientSocket, password_buffer, 300-1);
+	int bytes_read = read(clientSocket, password_buffer, 300-1);
+	if (bytes_read <= 0) {
+		handle_disconnection(clientSocket);
+		return -1;
+	} 
+	
 	printf("Received password: %s \n", password_buffer);
 
     size_t len = strlen(password_buffer);
@@ -158,7 +194,12 @@ int receive_password(int clientSocket, char **pass)
 int receive_amount(int clientSocket)
 {
 	char amount_buffer[300];
-	read(clientSocket, amount_buffer, 300-1);
+	int bytes_read = read(clientSocket, amount_buffer, 300-1);
+	if (bytes_read <= 0) {
+		handle_disconnection(clientSocket);
+		return -1;
+	} 
+
 	return atoi(amount_buffer);
 }
 
@@ -167,6 +208,7 @@ int verify_password(int user_id, char* user_password, int clientSocket)
 
 	cJSON *rootArray = parseJson();
 
+	int error_code;
 	for(int i = 0; i < cJSON_GetArraySize(rootArray); i++){
 		// Get current json object in the logs array
 		cJSON *currentLog = cJSON_GetArrayItem(rootArray, i);
@@ -182,12 +224,22 @@ int verify_password(int user_id, char* user_password, int clientSocket)
 			if(strcmp(user_password, cJSON_GetStringValue(currentPassword)) == 0){
 				printf("passwords are the same! \n");
 				int msg = 0;
-				send(clientSocket, &msg, sizeof(msg), 0);
+				error_code = send(clientSocket, &msg, sizeof(msg), 0);
+				if (error_code == -1) {
+					handle_disconnection(clientSocket);
+					return -1;
+				} 
+
 				return 0; // passwords are equal
 			}
 			
             int msg = 1;
             send(clientSocket, &msg, sizeof(msg), 0);
+			if (error_code == -1) {
+				handle_disconnection(clientSocket);
+				return -1;
+			} 
+
             printf("Wrong password \n");
 			return 1;
         }
@@ -200,30 +252,42 @@ int verify_password(int user_id, char* user_password, int clientSocket)
 
 int login_user(int clientSocket, int *id, char** pass){
 	int user_id = receive_user_id(clientSocket);
+	if (user_id == -1) {
+		printf("if layer 2\n");
+		return -1;
+	}
+
 	int id_error_code = verify_user_id(user_id, clientSocket); // 0 -> user exists, 1 -> user not known
+	if (id_error_code == -1) return -1;	
 
 	char *password = NULL;
 
+	int error_code;
 	// user exists
 	if (id_error_code == 0) {
 		
 		printf("waiting for password \n");
-		receive_password(clientSocket, &password);
-		int password_error_code = verify_password(user_id, password, clientSocket);
+		error_code = receive_password(clientSocket, &password);
+		if (error_code == -1) return -1;
 
-		if(password_error_code == -1) printf("Error in verifying password: %d", password_error_code);
+		int password_error_code = verify_password(user_id, password, clientSocket);
+		if (password_error_code == -1) return -1;
 
 		while(password_error_code == 1){
-		printf("waiting for password \n");
-		receive_password(clientSocket, &password);
+			printf("waiting for password \n");
+			error_code = receive_password(clientSocket, &password);
+			if (error_code == -1) return -1;
+
 			password_error_code = verify_password(user_id, password, clientSocket);
+			if (password_error_code == -1) return -1;
 
 		}
 
 	}
 	// user not yet know, create a new password
 	else if (id_error_code == 1){
-		receive_password(clientSocket, &password);
+		error_code = receive_password(clientSocket, &password);
+		if (error_code == -1) return -1;
 	}
 	else{
 		printf("Error in verifying user id: %d", id_error_code);
@@ -334,43 +398,52 @@ int main(int argc, char const* argv[])
 
 	// listen for connections 
 	listen(servSockD, 1); 
-
-	// integer to hold client socket. 
-	int clientSocket = accept(servSockD, NULL, NULL);
-	printf("%d", clientSocket);
-	// sends messages to client socket 
-
-	// Initial (dummy) message
-	send(clientSocket, serMsg, sizeof(serMsg), 0);
-
-	int user_id;
-	char *password;
-
-	// Step 1: LOGIN
-	login_user(clientSocket, &user_id, &password);
-
-	printf("user: %d \n", user_id);
-	printf("pass: %s \n", password);
 	
-	printf("login successful \n");
+	printf("Listening for connections... \n");
 
-	int amounts_array_length;
-	int* amounts_array = receive_all_amounts(clientSocket, &amounts_array_length);
+	while(1){
+		printf("\nWaiting for the next connection... \n\n");
+			// integer to hold client socket. 
+		int clientSocket = accept(servSockD, NULL, NULL);
+		printf("Client %d is now connected\n", clientSocket);
+		// sends messages to client socket 
 
-	char** actions_array = createActionsArray(amounts_array, amounts_array_length);
+		// Initial (dummy) message
+		int error_code = send(clientSocket, serMsg, sizeof(serMsg), 0);
+		if (error_code == -1) continue; // accept the next connection
 
-	// int delay = get_delay();
-	// send(clientSocket, &delay, sizeof(delay), 0);
+		int user_id;
+		char *password;
 
-	write_to_json(generate_log_object(user_id, password, 3, actions_array));
+		// Step 1: LOGIN
+		int login_error_code = login_user(clientSocket, &user_id, &password);
+		if (login_error_code == -1) {
+			printf("if layer 3\n");
+			// TODO Move free() to handle_disconnection once the struct is created.	
+			//free(password);
+			handle_disconnection(clientSocket);
+			continue;
+		}
 
-	free(password);
-	free(amounts_array);
-	free(actions_array);
+		printf("user: %d \n", user_id);
+		printf("pass: %s \n", password);
+		
+		printf("login successful \n");
 
+		int amounts_array_length;
+		int* amounts_array = receive_all_amounts(clientSocket, &amounts_array_length);
 
-	// receive_user_Pass
-	//login(clientSocket);
+		char** actions_array = createActionsArray(amounts_array, amounts_array_length);
+
+		// int delay = get_delay();
+		// send(clientSocket, &delay, sizeof(delay), 0);
+
+		write_to_json(generate_log_object(user_id, password, 3, actions_array));
+
+		free(password);
+		free(amounts_array);
+		free(actions_array);
+	}
 
 	return 0; 
 }
