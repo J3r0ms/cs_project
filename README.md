@@ -1,9 +1,16 @@
 # cs_project  
 ### Compile server.c  
 
-`gcc cJSON.c Server/server.c -o Server/server`  
+In `Server/`:  
+`gcc cJSON.c server.c -o server`  
 
 
 ### Compile client.c  
 
-`gcc Client/client.c -o Client/client`  
+In `Client/`:  
+`gcc client.c -o client`  
+
+
+### Execute
+
+In the corresponding folder, run first the server using `./server` and then the client using `./client`  
