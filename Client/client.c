@@ -36,7 +36,9 @@ void send_Password(int sockD)
 int give_counter_choice(int sockD)
 {
 	int amount;
- 	printf("Enter an amount to increase or decrease the counter: \n");
+	printf("\n");
+ 	printf("Enter an amount to increase or decrease the counter \n");
+	printf("Enter 0 to exit, a positive number to increase or a negative number to decrease \n");
 	scanf("%100i", &amount);
 
 	char user_amount[100];
