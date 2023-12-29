@@ -1,1 +1,8 @@
-[]
+[{
+		"id":	123,
+		"password":	"verysecurepassword\n",
+		"actions":	{
+			"delay":	3,
+			"steps":	["INCREASE BY 100"]
+		}
+	}]

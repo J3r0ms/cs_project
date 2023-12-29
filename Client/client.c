@@ -7,30 +7,60 @@
 #include <string.h>
 #include <fcntl.h> // for open
 #include <unistd.h> // for close
+#include <limits.h>
 
+#define MAX_LENGTH 200
 
-void send_ID(int sockD)
+int send_ID(int sockD)
 {
-		int userID;
+	char userID[MAX_LENGTH];
 
-		printf("Enter user id: \n");
-		scanf("%100i", &userID);
+	printf("Enter user id: \n");
+	if (fgets(userID, sizeof(userID), stdin) == NULL) {
+		printf("An error occured, please try again. \n");
+		while ((getchar()) != '\n');
+		return -1;
+	}
 
-		char userInfo[100];
+	size_t length = strlen(userID);
+	if (length <= 0 || userID[length-1] != '\n') {
+		printf("Error, nothing was received or the input is too big. \n");
+		while ((getchar()) != '\n');
+		return -1;
+	}
 
-		sprintf(userInfo, "%i", userID);
+	char* end_pointer;
+	long id = strtol(userID, &end_pointer, 10);
 
-		send(sockD, userInfo, sizeof(userInfo), 0);
+    if ((end_pointer == userID) || (*end_pointer != '\0' && *end_pointer != '\n')) {
+        printf("Error, please provide a valid integer. \n");
+		return -1;
+    }
+
+	send(sockD, userID, sizeof(userID), 0);
+	return 0;
 }
 
-void send_Password(int sockD)
+int send_Password(int sockD)
 {
-		char userPass[200];
+		char userPass[MAX_LENGTH];
+
 		printf("Enter user password: \n");
-		scanf("%200s", userPass);
+		if (fgets(userPass, sizeof(userPass), stdin) == NULL) {
+			printf("An error occured, your password is too long. \n");
+			while ((getchar()) != '\n');
+			return -1;
+		}
+
+		size_t pass_length = strlen(userPass);
+		if (pass_length <= 0 || userPass[pass_length-1] != '\n') {
+			printf("Error, nothing was received or the input is too big. \n");
+			while ((getchar()) != '\n');
+			return -1;
+		}
 
 		send(sockD, userPass, sizeof(userPass), 0);
-		printf("Message sent \n");
+		return 0;
 }
 
 int give_counter_choice(int sockD)
@@ -101,7 +131,12 @@ int main(int argc, char const* argv[])
 		recv(sockD, strData, sizeof(strData), 0);
 		printf("%s\n", strData);
 
-		send_ID(sockD);
+		int error = -1;
+		while (error == -1) {
+			error = send_ID(sockD);
+		}	
+
+
 
 		int server_id_answer;
 		recv(sockD, &server_id_answer, sizeof(server_id_answer), 0);
@@ -110,19 +145,31 @@ int main(int argc, char const* argv[])
 		// if answer == 1 ->  Id does not exist so create new password
 
 		if(server_id_answer == 0){
-			send_Password(sockD);
+			int error;
+			do {
+				error = send_Password(sockD);
+			} while (error == -1);
+			error = 0;
 			
 			int server_pass_answer;
 			recv(sockD, &server_pass_answer, sizeof(server_pass_answer), 0);
 			while (server_pass_answer == 1) {
 				printf("Wrong password, please try again \n");
-				send_Password(sockD);
+				int error;
+				do {
+					error = send_Password(sockD);
+				} while (error == -1);
+				error = 0;
+
 				recv(sockD, &server_pass_answer, sizeof(server_pass_answer), 0);
 			}
 		}
 		else if(server_id_answer == 1){
 			printf("This user is not yet known. A new account will be created. \n");
-			send_Password(sockD);
+			int error;
+			do {
+				error = send_Password(sockD);
+			} while (error == -1);
 
 		}
 
