@@ -71,13 +71,17 @@ int send_Password(int sockD)
 
 int give_counter_choice(int sockD)
 {
-	printf("\n");
+	fseek (stdin, 0, SEEK_END);
+	int num = ftell (stdin);
+	printf("%d", num);
+
+
 	printf("Enter an amount to increase or decrease the counter. \n");
 	printf("Enter 0 to exit, a positive number to increase or a negative number to decrease. \n");
 
 	char input[100];
 	if (fgets(input, sizeof(input), stdin) == NULL) {
-		printf("An error occured, please try again");
+		printf("An error occured, please try again. \n");
 		while ((getchar()) != '\n');
 		return -1;
 	}
@@ -103,6 +107,8 @@ int give_counter_choice(int sockD)
 	sprintf(user_amount, "%i", amount);
 
 	send(sockD, user_amount, sizeof(amount), 0);
+
+	while ((getchar()) != '\n');
 
 	if (amount == 0) {
 		printf("Exiting... \n");
