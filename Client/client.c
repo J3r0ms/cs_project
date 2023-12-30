@@ -57,7 +57,6 @@ int send_Password(int sockD)
 			printf("Error, you need to have a password, please try again. \n");
 			return -1;
 		}
-		// BUG: when putting no password, user id is 0
 
 		size_t pass_length = strlen(userPass);
 		if (pass_length <= 0 || userPass[pass_length-1] != '\n') {
@@ -100,10 +99,6 @@ int give_counter_choice(int sockD)
 
 
 	int amount = (int) id;
-	printf("\n");
- 	printf("Enter an amount to increase or decrease the counter \n");
-	printf("Enter 0 to exit, a positive number to increase or a negative number to decrease \n");
-
 	char user_amount[100];
 	sprintf(user_amount, "%i", amount);
 
