@@ -69,7 +69,7 @@ int send_Password(int sockD)
 		return 0;
 }
 
-int give_counter_choice(int sockD)
+int give_counter_choice(int sockD) // got some bugs here
 {
 	printf("Enter an amount to increase or decrease the counter. \n");
 	printf("Enter 0 to exit, a positive number to increase or a negative number to decrease. \n");
@@ -93,7 +93,6 @@ int give_counter_choice(int sockD)
     if ((end_pointer == input) || (*end_pointer != '\0' && *end_pointer != '\n') ||
 		id > MAX_INT || id < -MAX_INT ) {
         printf("Error, please provide a valid integer. \n");
-		while ((getchar()) != '\n');
 		return -1;
     }
 
@@ -102,7 +101,7 @@ int give_counter_choice(int sockD)
 	char user_amount[100];
 	sprintf(user_amount, "%i", amount);
 
-	send(sockD, user_amount, sizeof(amount), 0);
+	send(sockD, user_amount, sizeof(user_amount), 0);
 
 	if (amount == 0) {
 		printf("Exiting... \n");
