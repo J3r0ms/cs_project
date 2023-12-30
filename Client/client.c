@@ -38,7 +38,8 @@ int send_ID(int sockD)
 		return -1;
     }
 
-	send(sockD, (int) id, sizeof((int) id), 0);
+	int iid = (int) id;
+	send(sockD, &iid, sizeof( iid), 0);
 	return 0;
 }
 
@@ -68,6 +69,10 @@ int send_Password(int sockD)
 
 int give_counter_choice(int sockD)
 {
+	printf("\n");
+	printf("Enter an amount to increase or decrease the counter. \n");
+	printf("Enter 0 to exit, a positive number");
+
 	char input[100];
 	if (fgets(input, sizeof(input), stdin) == NULL) {
 		printf("An error occured, please try again");
