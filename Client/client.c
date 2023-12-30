@@ -57,7 +57,6 @@ int send_Password(int sockD)
 		size_t pass_length = strlen(userPass);
 		if (pass_length <= 0 || userPass[pass_length-1] != '\n' || *userPass == '\n') {
 			printf("Error, nothing was received or the input is too big. \n");
-			while ((getchar()) != '\n');
 			return -1;
 		}
 
