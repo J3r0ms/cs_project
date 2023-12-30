@@ -12,6 +12,8 @@ THIS VERSION OF THE CODE DOES NOT ALLOW FOR SIMULTANEOUS CONNECTIONS
 #include <fcntl.h> // for open
 #include <unistd.h> // for close
 #include <math.h>
+#include <string.h>
+#include <openssl/sha.h>
 
 #include "cJSON.h"
 
@@ -277,9 +279,13 @@ int receive_password(UserData *userData)
 		return -1;
 	} 
 	
-	printf("Received password: %s \n", passwordBuffer);
+	char hashedPassword[1000];
+	SHA256(passwordBuffer, strlen((char*)passwordBuffer), hashedPassword);
 
-    size_t len = strlen(passwordBuffer);
+	printf("Received password: %s \n", passwordBuffer);
+	printf("Hashed password: %s \n", hashedPassword);
+
+    size_t len = strlen(hashedPassword);
 
 	userData->password = (char*)malloc(len + 1);
 	if (userData->password == NULL) {
@@ -287,7 +293,7 @@ int receive_password(UserData *userData)
         exit(EXIT_FAILURE);
     }
 
-	strcpy(userData->password, passwordBuffer);
+	strcpy(userData->password, hashedPassword);
 
 	return 0;
 }
