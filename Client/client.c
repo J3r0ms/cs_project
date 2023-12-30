@@ -30,7 +30,7 @@ int send_ID(int sockD)
 	}
 
 	char* end_pointer;
-	long id = strtol(userID, &end_pointer, 10);
+	int id = (int) strtol(userID, &end_pointer, 10);
 
     if ((end_pointer == userID) || (*end_pointer != '\0' && *end_pointer != '\n') ||
 		id < 0 || id > MAX_INT) {
@@ -38,8 +38,7 @@ int send_ID(int sockD)
 		return -1;
     }
 
-	int iid = (int) id;
-	send(sockD, &iid, sizeof( iid), 0);
+	send(sockD, userID, sizeof(userID), 0);
 	return 0;
 }
 
@@ -54,13 +53,18 @@ int send_Password(int sockD)
 			return -1;
 		}
 
-		size_t pass_length = strlen(userPass);
-		if (pass_length <= 0 || userPass[pass_length-1] != '\n' || *userPass == '\n') {
-			printf("Error, nothing was received or the input is too big. \n");
+		if (*userPass == '\n') {
+			printf("Error, you need to have a password, please try again. \n");
 			return -1;
 		}
+		// BUG: when putting no password, user id is 0
 
-		//TODO shouldn't be possible to not have password
+		size_t pass_length = strlen(userPass);
+		if (pass_length <= 0 || userPass[pass_length-1] != '\n') {
+			printf("Error, nothing was received or the input is too big. \n");
+			while ((getchar() != '\n'));
+			return -1;
+		}
 
 		send(sockD, userPass, sizeof(userPass), 0);
 		return 0;
