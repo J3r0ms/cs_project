@@ -15,7 +15,7 @@ In `Client/`:
 
 ### Execute
 
-In the corresponding folder, run first the server using 
-`$ ./server` 
-and then the client using 
+In the corresponding folder, run first the server using \\
+`$ ./server`  \\
+and then the client using \\
 `$ ./client`  
