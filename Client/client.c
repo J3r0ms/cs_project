@@ -7,8 +7,8 @@
 #include <string.h>
 #include <fcntl.h> // for open
 #include <unistd.h> // for close
-#include <limits.h>
 
+#define MAX_INT 2147483647
 #define MAX_LENGTH 200
 
 int send_ID(int sockD)
@@ -32,12 +32,13 @@ int send_ID(int sockD)
 	char* end_pointer;
 	long id = strtol(userID, &end_pointer, 10);
 
-    if ((end_pointer == userID) || (*end_pointer != '\0' && *end_pointer != '\n')) {
+    if ((end_pointer == userID) || (*end_pointer != '\0' && *end_pointer != '\n') ||
+		id < 0 || id > MAX_INT) {
         printf("Error, please provide a valid integer. \n");
 		return -1;
     }
 
-	send(sockD, userID, sizeof(userID), 0);
+	send(sockD, (int) id, sizeof((int) id), 0);
 	return 0;
 }
 
@@ -59,17 +60,41 @@ int send_Password(int sockD)
 			return -1;
 		}
 
+		//TODO shouldn't be possible to not have password
+
 		send(sockD, userPass, sizeof(userPass), 0);
 		return 0;
 }
 
 int give_counter_choice(int sockD)
 {
-	int amount;
+	char input[100];
+	if (fgets(input, sizeof(input), stdin) == NULL) {
+		printf("An error occured, please try again");
+		while ((getchar()) != '\n');
+		return -1;
+	}
+
+	size_t length = strlen(input);
+	if (length <= 0 || input[length-1] != '\n') {
+		printf("Error, nothing was received or the input is too big. \n");
+		while ((getchar()) != '\n');
+		return -1;
+	}
+
+	char* end_pointer;
+	long id = strtol(input, &end_pointer, 10);
+    if ((end_pointer == input) || (*end_pointer != '\0' && *end_pointer != '\n') ||
+		id > MAX_INT || id < -MAX_INT ) {
+        printf("Error, please provide a valid integer. \n");
+		return -1;
+    }
+
+
+	int amount = (int) id;
 	printf("\n");
  	printf("Enter an amount to increase or decrease the counter \n");
 	printf("Enter 0 to exit, a positive number to increase or a negative number to decrease \n");
-	scanf("%100i", &amount);
 
 	char user_amount[100];
 	sprintf(user_amount, "%i", amount);
