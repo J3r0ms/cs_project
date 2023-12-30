@@ -55,7 +55,7 @@ int send_Password(int sockD)
 		}
 
 		size_t pass_length = strlen(userPass);
-		if (pass_length <= 0 || userPass[pass_length-1] != '\n') {
+		if (pass_length <= 0 || userPass[pass_length-1] != '\n' || *userPass == '\n') {
 			printf("Error, nothing was received or the input is too big. \n");
 			while ((getchar()) != '\n');
 			return -1;
@@ -71,7 +71,7 @@ int give_counter_choice(int sockD)
 {
 	printf("\n");
 	printf("Enter an amount to increase or decrease the counter. \n");
-	printf("Enter 0 to exit, a positive number");
+	printf("Enter 0 to exit, a positive number to increase or a negative number to decrease. \n");
 
 	char input[100];
 	if (fgets(input, sizeof(input), stdin) == NULL) {
