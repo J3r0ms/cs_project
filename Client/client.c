@@ -208,7 +208,6 @@ int main(int argc, char const* argv[])
 		int counter;
 		do {
 			counter = give_counter_choice(sockD);
-			sleep(3);
 		} while (counter != 0);
 
 		close(sockD);
